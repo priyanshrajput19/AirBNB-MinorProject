@@ -15,7 +15,7 @@ def main():
     province_data = readfile("Canada","Montreal")
     # Select only the columns you want to display
     selected_columns = ['id', 'scrape_id', 'last_scraped']
-    montreal_subset = montreal[selected_columns].head(3)
+    montreal_subset = province_data[selected_columns].head(3)
     print(tabulate(montreal_subset, headers='keys', tablefmt='grid'))
   
 
