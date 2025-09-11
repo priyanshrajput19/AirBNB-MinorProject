@@ -6,20 +6,28 @@ Located in src/ folder for better organization
 
 import numpy as np
 import pandas as pd
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from tabulate import tabulate
+import uvicorn
 
-def readfile(country,province):
-    return pd.read_csv(f"../Data/{country}/{province}/listings 2.csv")
+# Create FastAPI app
+app = FastAPI(title="AirBNB Analytics API", version="1.0.0")
+
+@app.get("/")
+async def read_root():
+    print("Hello World")
+    return {"message": "Hello World"}
+
+
+
+
+
 
 def main():
-    province_data = readfile("Canada","Montreal")
-    # Select only the columns you want to display
-    selected_columns = ['id', 'scrape_id', 'last_scraped']
-    montreal_subset = province_data[selected_columns].head(3)
-    print(tabulate(montreal_subset, headers='keys', tablefmt='grid'))
-  
-
-
+    """Run the server"""
+    print("Starting AirBNB Analytics API server...")
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
 
 if __name__ == "__main__":
     main()

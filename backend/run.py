@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple runner script - just run: python run.py
+Simple runner script - just run: python3 run.py
 """
 
 from src.main import main
