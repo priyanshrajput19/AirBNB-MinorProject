@@ -3,6 +3,7 @@
 
 @theme {
   --font-primary: "Montserrat", sans-serif;
+  --button-primary: #f45b60;
 }
 
 :root {
@@ -24,4 +25,17 @@ body {
 html {
   background-color: var(--primary-bg);
   height: 100%;
+}
+
+/* Light ray animation for button hover */
+@keyframes lightRay {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
