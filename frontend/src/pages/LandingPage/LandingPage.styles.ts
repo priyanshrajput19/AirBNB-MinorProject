@@ -1,9 +1,10 @@
-export const mainStyle = {
+export const landingPageStyles = {
   tagline: {
     font: "var(--font-primary)",
     fontWeight: "800",
   },
   main: {
+    paddingTop: "106px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -26,7 +27,12 @@ export const mainStyle = {
     marginTop: "20px",
     fontSize: "16px",
     font: "var(--font-primary)",
-    width: "150px",
+    width: "180px",
     alignSelf: "center",
+    padding: "12px 24px",
+    gap: "4px",
+    "& .MuiButton-endIcon": {
+      marginLeft: "4px",
+    },
   },
 };

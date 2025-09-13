@@ -12,29 +12,38 @@ const Header = () => {
   };
   return (
     <>
-      <Box component="header" className="header  top-0 left-0 py-[25px] border-b border-gray-200 ">
-        <Box className="header-inner flex justify-between items-center mx-auto max-w-7xl">
-          <Box className="header-logo">
+      <Box component="header" sx={headerStyles.header}>
+        <Box sx={headerStyles.headerInner}>
+          {/* Left: Logo */}
+          <Box sx={headerStyles.headerLogo}>
             <a href="#home">
               <img src={Logo} alt="Logo" style={headerStyles.img}></img>
             </a>
           </Box>
-          <Box className="header-menu relative">
-            <ul className="flex  items-center gap-10">
+
+          {/* Center: Navigation */}
+          <Box sx={headerStyles.headerMenu}>
+            <ul style={headerStyles.navigationList}>
               <li>
-                <a href="#home">Home</a>
+                <Box component="a" href="#home" sx={headerStyles.navigationLink}>
+                  Home
+                </Box>
               </li>
               <li>
-                <a href="#about">Features</a>
+                <Box component="a" href="#features" sx={headerStyles.navigationLink}>
+                  Features
+                </Box>
               </li>
               <li>
-                <a href="#contact">About</a>
+                <Box component="a" href="#about" sx={headerStyles.navigationLink}>
+                  About
+                </Box>
               </li>
             </ul>
           </Box>
-          <Box className="headertheme-toggle">
-            <Button onClick={handleToggleDarkMode}> {isDarkMode ? <LightMode color="disabled" fontSize="small" /> : <DarkMode color="disabled" fontSize="small" />} </Button>
-          </Box>
+
+          {/* Right: Theme Toggle */}
+          <Button onClick={handleToggleDarkMode}>{isDarkMode ? <LightMode color="disabled" fontSize="small" /> : <DarkMode color="disabled" fontSize="small" />}</Button>
         </Box>
       </Box>
     </>

@@ -34,6 +34,10 @@ const theme = createTheme({
             backgroundColor: "#f45b60",
             transform: "scale(1.02)",
             boxShadow: "0 4px 15px rgba(244, 91, 96, 0.2)",
+            "& .MuiButton-endIcon": {
+              transform: "rotate(-45deg)",
+              transition: "transform 0.3s ease",
+            },
           },
           "&:active": {
             transform: "scale(0.98)",

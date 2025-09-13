@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@mui/material/styles";
-import Header from "../Header/Header";
-import Main from "../Main/Main";
-import buttonTheme from "../../theme/buttonTheme";
+import Header from "./components/Header/Header";
+import Main from "./components/Main/Main";
+import buttonTheme from "./theme/buttonTheme";
 
 function App() {
   return (
