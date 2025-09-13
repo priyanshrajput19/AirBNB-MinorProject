@@ -4,7 +4,7 @@ const About = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#f45b60" }}>
+        <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#FF5A5F" }}>
           About Airbnb Analytics
         </Typography>
         <Typography variant="h5" color="text.secondary" sx={{ maxWidth: 600, mx: "auto" }}>
@@ -15,7 +15,7 @@ const About = () => {
       <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4, mb: 6 }}>
         <Card sx={{ flex: 1, p: 3 }}>
           <CardContent>
-            <Typography variant="h4" gutterBottom sx={{ color: "#f45b60", fontWeight: 600 }}>
+            <Typography variant="h4" gutterBottom sx={{ color: "#FF5A5F", fontWeight: 600 }}>
               Our Mission
             </Typography>
             <Typography variant="body1" paragraph>
@@ -27,7 +27,7 @@ const About = () => {
 
         <Card sx={{ flex: 1, p: 3 }}>
           <CardContent>
-            <Typography variant="h4" gutterBottom sx={{ color: "#f45b60", fontWeight: 600 }}>
+            <Typography variant="h4" gutterBottom sx={{ color: "#FF5A5F", fontWeight: 600 }}>
               Why Choose Us
             </Typography>
             <Typography variant="body1" paragraph>

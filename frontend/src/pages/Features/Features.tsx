@@ -37,7 +37,7 @@ const Features = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Box textAlign="center" mb={8}>
-        <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#f45b60" }}>
+        <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#FF5A5F" }}>
           Powerful Features
         </Typography>
         <Typography variant="h5" color="text.secondary" sx={{ maxWidth: 700, mx: "auto" }}>
@@ -65,12 +65,12 @@ const Features = () => {
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
               "&:hover": {
                 transform: "translateY(-4px)",
-                boxShadow: "0 8px 25px rgba(244, 91, 96, 0.15)",
+                boxShadow: "0 8px 25px rgba(255, 90, 95, 0.15)",
               },
             }}
           >
             <CardContent>
-              <Typography variant="h5" gutterBottom sx={{ color: "#f45b60", fontWeight: 600 }}>
+              <Typography variant="h5" gutterBottom sx={{ color: "#FF5A5F", fontWeight: 600 }}>
                 {feature.title}
               </Typography>
               <Typography variant="body1" paragraph sx={{ mb: 3 }}>
@@ -83,8 +83,8 @@ const Features = () => {
                     label={tag}
                     size="small"
                     sx={{
-                      backgroundColor: "rgba(244, 91, 96, 0.1)",
-                      color: "#f45b60",
+                      backgroundColor: "rgba(255, 90, 95, 0.1)",
+                      color: "#FF5A5F",
                       fontWeight: 500,
                     }}
                   />

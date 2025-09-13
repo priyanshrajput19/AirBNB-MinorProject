@@ -37,8 +37,8 @@ export const headerStyles = {
     transition: "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     "&:hover": {
       color: "#ffffff",
-      backgroundColor: "#f45b60",
-      boxShadow: "0 4px 15px rgba(244, 91, 96, 0.3)",
+      backgroundColor: "#FF5A5F",
+      boxShadow: "0 4px 15px rgba(255, 90, 95, 0.3)",
     },
   },
   img: {
