@@ -3,10 +3,11 @@ import { DarkMode, LightMode } from "@mui/icons-material";
 import { useState } from "react";
 import Logo from "../../assets/icons/airbnb-icon.svg";
 import { headerStyles } from "./header.styles";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-
+  const navigate = useNavigate();
   const handleToggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
@@ -35,9 +36,9 @@ const Header = () => {
                 </Box>
               </li>
               <li>
-                <Box component="a" href="#about" sx={headerStyles.navigationLink}>
-                  About
-                </Box>
+                <Button onClick={() => navigate("/try-now")} sx={headerStyles.navigationLink}>
+                  Try Now
+                </Button>
               </li>
             </ul>
           </Box>

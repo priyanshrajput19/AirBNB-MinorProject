@@ -94,15 +94,6 @@ const Features = () => {
           </Card>
         ))}
       </Box>
-
-      <Box textAlign="center" mt={8}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-          Ready to Transform Your Hosting Business?
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Start your free trial today and see the difference data-driven insights can make
-        </Typography>
-      </Box>
     </Container>
   );
 };
