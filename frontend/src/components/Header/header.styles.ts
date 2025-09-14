@@ -10,7 +10,7 @@ export const headerStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    margin: "0 auto",
+    margin: "auto",
     maxWidth: "80rem",
     width: "100%",
   },
@@ -36,7 +36,6 @@ export const headerStyles = {
     borderRadius: "8px",
     transition: "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     font: "var(--font-primary)",
-
     textTransform: "none",
     "&:hover": {
       color: "#ffffff",

@@ -4,14 +4,13 @@ export const landingPageStyles = {
     fontWeight: "800",
   },
   main: {
-    paddingTop: "106px",
+    padding: "50px",
+    margin: "10px",
     display: "flex",
     justifyContent: "center",
-    alignItems: "flex-start",
+    alignItems: "center",
     minHeight: "80vh",
-    width: "100%",
     textAlign: "center",
-    padding: "200px 20px 0",
   },
   content: {
     textAlign: "center",

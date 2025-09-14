@@ -6,7 +6,7 @@ const LandingPage = () => {
   return (
     <>
       <Box component="main" sx={landingPageStyles.main}>
-        <Stack direction="column" spacing={1} sx={landingPageStyles.content}>
+        <Stack className="landing-page-content" direction="column" spacing={1} sx={landingPageStyles.content}>
           <Typography sx={landingPageStyles.tagline}>One-stop solution for Airbnb insights. With real-time data and analytics.</Typography>
           <Typography sx={landingPageStyles.paragraph}>Gain deeper insights into Airbnb listings across your city, region, or country.</Typography>
           <Typography sx={landingPageStyles.paragraph}>From pricing trends to occupancy rates, our dashboard helps you make data-driven decisions that boost your hosting journey.</Typography>

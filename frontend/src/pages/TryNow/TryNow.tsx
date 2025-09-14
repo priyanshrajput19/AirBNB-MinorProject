@@ -1,13 +1,9 @@
-import { Box } from "@mui/material";
+import SearchBar from "../../components/Searchbar/SearchBar";
 
 const TryNow = () => {
   return (
     <>
-      <Box>TryNow</Box>
-      <Box>TryNow</Box>
-      <Box>TryNow</Box>
-
-      <Box>TryNow</Box>
+      <SearchBar />
     </>
   );
 };
