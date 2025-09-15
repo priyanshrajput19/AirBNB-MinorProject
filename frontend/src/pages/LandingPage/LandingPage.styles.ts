@@ -1,7 +1,7 @@
 export const landingPageStyles = {
   tagline: {
-    font: "var(--font-primary)",
     fontWeight: "800",
+    fontFamily: "'Montserrat', sans-serif",
   },
   main: {
     padding: "50px",
@@ -18,14 +18,15 @@ export const landingPageStyles = {
     margin: "0 auto",
   },
   paragraph: {
-    font: "var(--font-primary)",
+    fontFamily: "'Montserrat', sans-serif",
     fontSize: "16px",
     color: "var(--color-primary)",
   },
   button: {
     marginTop: "20px",
     fontSize: "16px",
-    font: "var(--font-primary)",
+    fontFamily: "'Montserrat', sans-serif",
+    fontWeight: "700",
     width: "180px",
     alignSelf: "center",
     padding: "12px 24px",

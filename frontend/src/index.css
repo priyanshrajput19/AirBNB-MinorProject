@@ -1,8 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
+@import "./assets/fonts/fonts.css";
 
 @theme {
-  --font-primary: "Montserrat", sans-serif;
   --button-primary: #f45b60;
 }
 
@@ -15,7 +14,7 @@
 
 /* Global background color */
 body {
-  font-family: var(--font-primary);
+  font-family: "Montserrat", sans-serif;
   background-color: var(--primary-bg);
   margin: 0;
   padding: 0;

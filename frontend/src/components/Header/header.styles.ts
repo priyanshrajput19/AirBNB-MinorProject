@@ -37,8 +37,10 @@ export const headerStyles = {
     padding: "8px 16px",
     borderRadius: "8px",
     transition: "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-    font: "var(--font-primary)",
+    font: "'Montserrat', sans-serif",
+    fontFamily: "'Montserrat', sans-serif",
     textTransform: "none",
+    fontWeight: "400",
     "&:hover": {
       color: "#ffffff",
       backgroundColor: "#FF5A5F",
