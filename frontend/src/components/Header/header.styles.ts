@@ -5,6 +5,8 @@ export const headerStyles = {
     left: 0,
     padding: "25px 0",
     borderBottom: "1px solid #e5e7eb",
+    boxShadow: "inset 0 -3px 8px rgba(0, 0, 0, 0.08)",
+    background: "linear-gradient(to bottom, #fafafa, #ffffff)",
   },
   headerInner: {
     display: "flex",
