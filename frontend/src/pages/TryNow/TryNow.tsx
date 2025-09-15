@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import SearchBar from "../../components/Searchbar/SearchBar";
 
 const TryNow = () => {
