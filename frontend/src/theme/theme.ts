@@ -6,6 +6,10 @@ const theme = createTheme({
       main: "#FF5A5F",
     },
   },
+  typography: {
+    fontFamily: '"Montserrat", "Helvetica", "Arial", sans-serif',
+    button: { textTransform: "none" },
+  },
   components: {
     MuiButton: {
       styleOverrides: {
