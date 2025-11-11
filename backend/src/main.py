@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from api import listings, analytics, search, market_data
 
+from src.api.v1.routes.listings import router as listings_router
 
 # Create FastAPI app
 app = FastAPI(
     title="Airbnb Analytics API",
     description="API for Airbnb market analytics and insights",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # CORS middleware
@@ -20,10 +20,8 @@ app.add_middleware(
 )
 
 # Include API routers
-# app.include_router(listings.router, prefix="/api/listings", tags=["listings"])
-# app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
-# app.include_router(search.router, prefix="/api/search", tags=["search"])
-# app.include_router(market_data.router, prefix="/api/market-data", tags=["market-data"])
+app.include_router(listings_router, prefix="/api/v1")
+
 
 # Root endpoint
 @app.get("/")
@@ -31,8 +29,9 @@ async def root():
     return {
         "message": "Airbnb Analytics API",
         "version": "1.0.0",
-        "status": "running"
+        "status": "running",
     }
+
 
 # Health check endpoint
 @app.get("/health")
