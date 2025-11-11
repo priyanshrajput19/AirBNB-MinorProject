@@ -4,6 +4,7 @@ Listing controller: orchestrates loading raw CSVs, cleaning them, and returning 
 
 from __future__ import annotations
 
+import ast
 from typing import Any, Dict, Optional
 
 import pandas as pd
@@ -67,14 +68,34 @@ def _dataframe_to_listings(dataframe: pd.DataFrame) -> list[Listing]:
     """Convert a pandas DataFrame into a list of Listing Pydantic models."""
     records = dataframe.to_dict(orient="records")
     cleaned_records: list[dict[str, Any]] = []
+    allowed_fields = set(Listing.model_fields.keys())
 
     for record in records:
         normalised: dict[str, Any] = {}
         for key, value in record.items():
+            if key not in allowed_fields:
+                continue
+
             if pd.isna(value):
                 normalised[key] = None
             elif key == "listing_id":
                 normalised[key] = str(value)
+            elif key in {"id", "host_id"}:
+                normalised[key] = str(value)
+            elif key == "host_identity_verified":
+                if isinstance(value, str):
+                    normalised[key] = value.strip().lower() in {"true", "t", "yes", "1"}
+                else:
+                    normalised[key] = bool(value)
+            elif key == "amenities":
+                if isinstance(value, str):
+                    try:
+                        parsed = ast.literal_eval(value)
+                        normalised[key] = parsed if isinstance(parsed, list) else value
+                    except (SyntaxError, ValueError):
+                        normalised[key] = value
+                else:
+                    normalised[key] = value
             else:
                 normalised[key] = value
         cleaned_records.append(normalised)

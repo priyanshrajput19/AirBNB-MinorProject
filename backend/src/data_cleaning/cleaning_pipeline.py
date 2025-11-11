@@ -36,6 +36,7 @@ class CleaningRules:
     required_columns: Sequence[str] = ()
     numeric_columns: Sequence[str] = ()
     datetime_columns: Sequence[str] = ()
+    boolean_columns: Sequence[str] = ()
     rename_map: Mapping[str, str] = field(default_factory=dict)
     fill_defaults: Mapping[str, Any] = field(default_factory=dict)
     drop_null_threshold: float = 1.0  # drop rows where all values are null
@@ -44,9 +45,25 @@ class CleaningRules:
 DEFAULT_RULES: Dict[str, CleaningRules] = {
     "default": CleaningRules(),
     "listings": CleaningRules(
-        required_columns=("price", "latitude", "longitude"),
-        numeric_columns=("price", "latitude", "longitude"),
-        rename_map={"id": "listing_id"},
+        required_columns=(),
+        numeric_columns=(
+            "price",
+            "latitude",
+            "longitude",
+            "accommodations",
+            "bathrooms",
+            "bedrooms",
+            "beds",
+            "number_of_reviews",
+            "host_total_listings_count",
+        ),
+        datetime_columns=("host_since",),
+        boolean_columns=("host_identity_verified",),
+        rename_map={
+            "accommodates": "accommodations",
+            "bathrooms_text": "bathroom_texts",
+            "property_type": "property_types",
+        },
         fill_defaults={"price": 0.0},
     ),
 }
@@ -62,6 +79,7 @@ def _resolve_rules(dataset_name: str, overrides: Optional[Mapping[str, Any]]) ->
         required_columns=dataset_rules.required_columns or base.required_columns,
         numeric_columns=dataset_rules.numeric_columns or base.numeric_columns,
         datetime_columns=dataset_rules.datetime_columns or base.datetime_columns,
+        boolean_columns=dataset_rules.boolean_columns or base.boolean_columns,
         rename_map={**base.rename_map, **dataset_rules.rename_map},
         fill_defaults={**base.fill_defaults, **dataset_rules.fill_defaults},
         drop_null_threshold=dataset_rules.drop_null_threshold or base.drop_null_threshold,
@@ -74,6 +92,8 @@ def _resolve_rules(dataset_name: str, overrides: Optional[Mapping[str, Any]]) ->
             merged.numeric_columns = tuple(overrides["numeric_columns"])  # type: ignore[assignment]
         if "datetime_columns" in overrides:
             merged.datetime_columns = tuple(overrides["datetime_columns"])  # type: ignore[assignment]
+        if "boolean_columns" in overrides:
+            merged.boolean_columns = tuple(overrides["boolean_columns"])  # type: ignore[assignment]
         if "rename_map" in overrides:
             merged.rename_map = {**merged.rename_map, **overrides["rename_map"]}  # type: ignore[arg-type]
         if "fill_defaults" in overrides:
@@ -140,6 +160,12 @@ def clean_listings(
     # 4) Convert numeric columns.
     for column in cleaning_rules.numeric_columns:
         if column in working_df.columns:
+            if column == "price":
+                working_df[column] = (
+                    working_df[column]
+                    .astype(str)
+                    .str.replace(r"[^\d\.\-]", "", regex=True)
+                )
             working_df[column] = pd.to_numeric(working_df[column], errors="coerce")
 
     # 5) Convert datetime columns.
@@ -147,7 +173,20 @@ def clean_listings(
         if column in working_df.columns:
             working_df[column] = pd.to_datetime(working_df[column], errors="coerce", utc=True)
 
-    # 6) Ensure required columns are present and non-null.
+    # 6) Convert boolean columns.
+    truthy = {"true", "t", "yes", "y", "1"}
+    falsy = {"false", "f", "no", "n", "0"}
+    for column in cleaning_rules.boolean_columns:
+        if column in working_df.columns:
+            working_df[column] = (
+                working_df[column]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                .map(lambda value: True if value in truthy else False if value in falsy else None)
+            )
+
+    # 7) Ensure required columns are present and non-null.
     if cleaning_rules.required_columns:
         missing_columns = [column for column in cleaning_rules.required_columns if column not in working_df.columns]
         if missing_columns:
@@ -159,7 +198,7 @@ def clean_listings(
             subset=[col for col in cleaning_rules.required_columns if col in working_df.columns]
         )
 
-    # 7) Add timestamps if missing.
+    # 8) Add timestamps if missing.
     timestamp = pd.Timestamp.now(tz="UTC")
     if "created_at" not in working_df.columns:
         working_df["created_at"] = timestamp
@@ -172,6 +211,7 @@ def clean_listings(
         working_df["updated_at"] = pd.to_datetime(working_df["updated_at"], errors="coerce", utc=True).fillna(timestamp)
 
     # 8) Attach metadata columns for traceability.
+    # (This now happens after timestamps, so numbering continues)
     working_df["country"] = country
     working_df["province"] = province
 
