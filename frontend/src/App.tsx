@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@mui/material/styles";
 import Header from "./components/Header/Header";
 import Main from "./components/Main/Main";
-import theme from "./theme/Theme";
+import theme from "./theme/theme";
 import { Route, Routes } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import TryNow from "./pages/TryNow/TryNow";
