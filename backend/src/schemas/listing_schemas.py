@@ -52,3 +52,16 @@ class ListingResponse(BaseModel):
     country: str
     province: str
     items: list[Listing]
+
+
+class CountryListResponse(BaseModel):
+    """List of available countries."""
+
+    countries: list[str]
+
+
+class ProvinceListResponse(BaseModel):
+    """List of provinces/states for a given country."""
+
+    country: str
+    provinces: list[str]

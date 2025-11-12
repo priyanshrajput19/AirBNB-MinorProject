@@ -10,7 +10,12 @@ from src.api.v1.controllers.listings_controller import (
     ListingsControllerError,
     get_listings,
 )
-from src.schemas.listing_schemas import ListingResponse
+from src.data_access.registry import RegistryError, list_countries, list_provinces
+from src.schemas.listing_schemas import (
+    CountryListResponse,
+    ListingResponse,
+    ProvinceListResponse,
+)
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 
@@ -29,3 +34,26 @@ def list_listings(
     except ListingsControllerError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return response
+
+
+@router.get("/countries", response_model=CountryListResponse)
+def get_countries():
+    """Return the list of countries that have datasets available."""
+    countries = list_countries()
+    if not countries:
+        raise HTTPException(status_code=404, detail="No countries found in data directory.")
+    return CountryListResponse(countries=countries)
+
+
+@router.get("/provinces", response_model=ProvinceListResponse)
+def get_provinces(country: str = Query(..., description="Country name to list provinces for")):
+    """Return provinces/states available for the given country."""
+    try:
+        provinces = list_provinces(country)
+    except RegistryError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    if not provinces:
+        raise HTTPException(status_code=404, detail=f"No provinces found for '{country}'.")
+
+    return ProvinceListResponse(country=country, provinces=provinces)
