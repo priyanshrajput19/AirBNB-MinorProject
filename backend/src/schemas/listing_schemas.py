@@ -65,3 +65,64 @@ class ProvinceListResponse(BaseModel):
 
     country: str
     provinces: list[str]
+
+
+# Analytics schemas
+class PropertyTypeDistribution(BaseModel):
+    """Distribution of listings by property type."""
+
+    property_type: str
+    count: int
+
+
+class RoomTypeDistribution(BaseModel):
+    """Distribution of listings by room type."""
+
+    room_type: str
+    count: int
+
+
+class AmenityDistribution(BaseModel):
+    """Distribution of listings by amenity."""
+
+    amenity: str
+    count: int
+
+
+class PriceStatistics(BaseModel):
+    """Price statistics for listings."""
+
+    average: float
+    highest: float
+    lowest: float
+    median: Optional[float] = None
+
+
+class ReviewStatistics(BaseModel):
+    """Review statistics for listings."""
+
+    total: float
+    average: float
+    max: float
+    min: float
+
+
+class InstantBookingStats(BaseModel):
+    """Instant booking statistics."""
+
+    instant_booking_enabled: int
+    instant_booking_disabled: int
+    total: int
+
+
+class AnalyticsResponse(BaseModel):
+    """Complete analytics response for country/province."""
+
+    country: str
+    province: Optional[str] = None
+    property_type_distribution: list[PropertyTypeDistribution]
+    room_type_distribution: list[RoomTypeDistribution]
+    amenity_distribution: list[AmenityDistribution]
+    price_statistics: PriceStatistics
+    review_statistics: ReviewStatistics
+    instant_booking_stats: InstantBookingStats

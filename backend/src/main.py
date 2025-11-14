@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.v1.routes.analytics import router as analytics_router
 from src.api.v1.routes.listings import router as listings_router
 
 # Create FastAPI app
@@ -21,6 +22,7 @@ app.add_middleware(
 
 # Include API routers
 app.include_router(listings_router, prefix="/api/v1")
+app.include_router(analytics_router, prefix="/api/v1")
 
 
 # Root endpoint
