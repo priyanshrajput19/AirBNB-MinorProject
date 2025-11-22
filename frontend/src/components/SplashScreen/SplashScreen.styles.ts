@@ -1,0 +1,45 @@
+export const splashScreenStyles = {
+  container: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#ffffff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 9999,
+    overflow: "hidden",
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "30px",
+  },
+  logo: {
+    width: "auto",
+    height: { xs: "80px", md: "120px" },
+    marginBottom: "20px",
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "20px",
+    marginTop: "20px",
+  },
+  spinner: {
+    color: "#FF5A5F",
+  },
+  loadingText: {
+    fontFamily: "'Montserrat', sans-serif",
+    fontSize: "16px",
+    color: "#666666",
+    fontWeight: "500",
+    letterSpacing: "2px",
+    textTransform: "uppercase",
+  },
+};

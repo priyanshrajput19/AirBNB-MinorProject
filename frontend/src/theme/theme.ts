@@ -7,13 +7,26 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Montserrat", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Montserrat", sans-serif',
     button: { textTransform: "none" },
+    h1: { fontFamily: '"Montserrat", sans-serif' },
+    h2: { fontFamily: '"Montserrat", sans-serif' },
+    h3: { fontFamily: '"Montserrat", sans-serif' },
+    h4: { fontFamily: '"Montserrat", sans-serif' },
+    h5: { fontFamily: '"Montserrat", sans-serif' },
+    h6: { fontFamily: '"Montserrat", sans-serif' },
+    body1: { fontFamily: '"Montserrat", sans-serif' },
+    body2: { fontFamily: '"Montserrat", sans-serif' },
+    caption: { fontFamily: '"Montserrat", sans-serif' },
+    overline: { fontFamily: '"Montserrat", sans-serif' },
+    subtitle1: { fontFamily: '"Montserrat", sans-serif' },
+    subtitle2: { fontFamily: '"Montserrat", sans-serif' },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
+          fontFamily: '"Montserrat", sans-serif',
           textTransform: "none",
           borderRadius: "8px",
         },
@@ -45,6 +58,55 @@ const theme = createTheme({
           },
           "&:active": {
             transform: "scale(0.98)",
+          },
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Montserrat", sans-serif',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          "& .MuiInputBase-input": {
+            fontFamily: '"Montserrat", sans-serif',
+          },
+          "& .MuiInputLabel-root": {
+            fontFamily: '"Montserrat", sans-serif',
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Montserrat", sans-serif',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Montserrat", sans-serif',
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Montserrat", sans-serif',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          "& .MuiTypography-root": {
+            fontFamily: '"Montserrat", sans-serif',
           },
         },
       },
