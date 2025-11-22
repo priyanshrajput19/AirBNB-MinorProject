@@ -106,6 +106,7 @@ def get_dataset_path(country: str, province: str, dataset: str) -> Path:
         country: Country folder name (case-insensitive).
         province: Province/state folder name (case-insensitive).
         dataset: CSV file name (with or without `.csv` extension).
+                 If exact match not found, will try to find files that start with the dataset name.
 
     Returns:
         A resolved `Path` pointing to the requested CSV file.
@@ -119,14 +120,47 @@ def get_dataset_path(country: str, province: str, dataset: str) -> Path:
             f"No data folder found for province '{province}' in country '{country}'."
         ) from exc
 
-    filename = dataset if dataset.lower().endswith(".csv") else f"{dataset}.csv"
-    dataset_path = (province_folder / filename).resolve()
-
-    if not dataset_path.exists():
+    # Normalize dataset name - remove .csv extension if present
+    dataset_base = dataset.lower().replace(".csv", "").strip()
+    
+    # Get all CSV files in the province folder
+    all_csv_files = [f for f in province_folder.iterdir() if f.is_file() and f.suffix.lower() == ".csv"]
+    
+    if not all_csv_files:
         raise RegistryError(
-            f"Dataset '{filename}' not found under {province_folder}."
+            f"No CSV files found under {province_folder}."
         )
+    
+    # Try exact match first (e.g., "listings.csv")
+    exact_filename = f"{dataset_base}.csv"
+    dataset_path = (province_folder / exact_filename).resolve()
+    if dataset_path.exists():
+        return dataset_path
 
-    return dataset_path
+    # If exact match not found, find files that start with the dataset base name
+    # This handles cases like "listings 2.csv", "listings.csv", "listings_v2.csv" when searching for "listings"
+    # The stem is the filename without extension (e.g., "listings 2" for "listings 2.csv")
+    matching_files = [
+        f for f in all_csv_files
+        if f.stem.lower().startswith(dataset_base)  # stem = filename without extension
+    ]
+
+    if matching_files:
+        # Sort to prefer exact matches, then shortest names (which usually means no numbers/suffixes)
+        # This ensures "listings.csv" is preferred over "listings 2.csv" if both exist
+        matching_files.sort(key=lambda x: (
+            0 if x.stem.lower() == dataset_base else 1,  # Exact match first (listings.csv)
+            0 if x.stem.lower() == f"{dataset_base} " else 1,  # Then "listings .csv" variants
+            len(x.name),  # Shorter names preferred
+            x.name  # Alphabetical as tiebreaker
+        ))
+        return matching_files[0].resolve()
+
+    # If still not found, provide helpful error message
+    available_files = [f.name for f in all_csv_files]
+    raise RegistryError(
+        f"Dataset '{dataset_base}.csv' not found under {province_folder}. "
+        f"Available CSV files: {', '.join(available_files)}."
+    )
 
 

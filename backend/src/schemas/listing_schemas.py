@@ -120,14 +120,30 @@ class InstantBookingStats(BaseModel):
     total: int
 
 
+class TopHost(BaseModel):
+    """Top host information."""
+
+    host_id: Optional[str] = Field(default=None, description="Unique identifier for the host.")
+    host_name: Optional[str] = Field(default=None, description="Name of the host.")
+    host_location: Optional[str] = Field(default=None, description="Location of the host.")
+    host_since: Optional[datetime] = Field(default=None, description="Date when host started hosting.")
+    host_about: Optional[str] = Field(default=None, description="Description about the host.")
+    host_identity_verified: Optional[bool] = Field(default=None, description="Whether host identity is verified.")
+    total_listings_count: int = Field(description="Total number of listings owned by this host.")
+    host_url: Optional[str] = Field(default=None, description="URL to host's profile.")
+    host_picture_url: Optional[str] = Field(default=None, description="URL to host's profile picture.")
+
+
 class AnalyticsResponse(BaseModel):
     """Complete analytics response for country/province."""
 
     country: str
     province: Optional[str] = None
+    total_listings: int = Field(description="Total number of listings analyzed.")
     property_type_distribution: list[PropertyTypeDistribution]
     room_type_distribution: list[RoomTypeDistribution]
     amenity_distribution: list[AmenityDistribution]
     price_statistics: PriceStatistics
     review_statistics: ReviewStatistics
     instant_booking_stats: InstantBookingStats
+    top_hosts: list[TopHost] = Field(default_factory=list, description="Top 10 hosts by listing count.")

@@ -124,3 +124,71 @@ def analyze_instant_booking_stats(df: DataFrame) -> Dict[str, int]:
         "instant_booking_disabled": disabled,
         "total": total,
     }
+
+
+def analyze_top_hosts(df: DataFrame, top_n: int = 10) -> List[Dict[str, Any]]:
+    """
+    Analyze and return top hosts by listing count.
+    
+    Groups listings by host_id and aggregates host information.
+    Returns top N hosts sorted by total listing count.
+    """
+    required_columns = ["host_id"]
+    if not all(col in df.columns for col in required_columns):
+        return []
+    
+    # Filter out rows with missing host_id
+    df_filtered = df[df["host_id"].notna()].copy()
+    
+    if len(df_filtered) == 0:
+        return []
+    
+    # Group by host_id and aggregate host information
+    host_info = {}
+    
+    # Count actual listings per host (more accurate than host_total_listings_count field)
+    host_counts = df_filtered["host_id"].value_counts().reset_index()
+    host_counts.columns = ["host_id", "actual_listing_count"]
+    
+    # Ensure the count is integer
+    host_counts["actual_listing_count"] = host_counts["actual_listing_count"].astype(int)
+    
+    # Get host information from first listing per host
+    agg_dict = {
+        "host_name": "first",
+        "host_location": "first",
+        "host_since": "first",
+        "host_about": "first",
+        "host_identity_verified": "first",
+        "host_url": "first",
+        "host_picture_url": "first",
+    }
+    
+    host_details = df_filtered.groupby("host_id", as_index=False).agg(agg_dict)
+    
+    # Merge counts with details
+    host_groups = host_counts.merge(host_details, on="host_id", how="left")
+    
+    # Rename to match expected column name
+    host_groups.rename(columns={"actual_listing_count": "host_total_listings_count"}, inplace=True)
+    
+    # Sort by listing count descending and take top N
+    host_groups = host_groups.sort_values("host_total_listings_count", ascending=False).head(top_n)
+    
+    # Convert to list of dictionaries
+    top_hosts = []
+    for _, row in host_groups.iterrows():
+        host_dict = {
+            "host_id": str(row["host_id"]) if pd.notna(row["host_id"]) else None,
+            "host_name": str(row["host_name"]) if pd.notna(row["host_name"]) else None,
+            "host_location": str(row["host_location"]) if pd.notna(row["host_location"]) else None,
+            "host_since": row["host_since"] if pd.notna(row["host_since"]) else None,
+            "host_about": str(row["host_about"]) if pd.notna(row["host_about"]) else None,
+            "host_identity_verified": bool(row["host_identity_verified"]) if pd.notna(row["host_identity_verified"]) else None,
+            "total_listings_count": int(row["host_total_listings_count"]),
+            "host_url": str(row["host_url"]) if pd.notna(row["host_url"]) else None,
+            "host_picture_url": str(row["host_picture_url"]) if pd.notna(row["host_picture_url"]) else None,
+        }
+        top_hosts.append(host_dict)
+    
+    return top_hosts

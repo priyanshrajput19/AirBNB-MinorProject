@@ -70,12 +70,12 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   }, [selectedCountry]);
 
   const handleSearch = () => {
-    if (selectedCountry && selectedProvince && onSearch) {
-      onSearch(selectedCountry, selectedProvince);
+    if (selectedCountry && onSearch) {
+      onSearch(selectedCountry, selectedProvince || "");
     }
   };
 
-  const isSearchDisabled = !selectedCountry || !selectedProvince || loadingProvinces;
+  const isSearchDisabled = !selectedCountry || loadingProvinces;
 
   return (
     <>
@@ -128,7 +128,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
           {/* Province Section */}
           <Box sx={searchBarStyles.inputSection}>
-            <Typography sx={searchBarStyles.label}>Province</Typography>
+            <Typography sx={searchBarStyles.label}>Province (Optional)</Typography>
             <FormControl
               fullWidth
               variant="standard"
@@ -148,7 +148,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                 sx={searchBarStyles.select}
                 renderValue={(selected) => {
                   if (!selected) {
-                    return <Typography sx={searchBarStyles.placeholder}>{!selectedCountry ? "Select country first" : loadingProvinces ? "Loading..." : "Select province"}</Typography>;
+                    return <Typography sx={searchBarStyles.placeholder}>{!selectedCountry ? "Select country first" : loadingProvinces ? "Loading..." : "Province (optional)"}</Typography>;
                   }
                   return <Typography sx={{ fontSize: "14px", color: "#222222" }}>{selected}</Typography>;
                 }}

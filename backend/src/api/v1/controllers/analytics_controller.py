@@ -19,6 +19,7 @@ from ....schemas.listing_schemas import (
     PriceStatistics,
     ReviewStatistics,
     InstantBookingStats,
+    TopHost,
 )
 from ....services.analytics_service import (
     analyze_property_type_distribution,
@@ -27,6 +28,7 @@ from ....services.analytics_service import (
     analyze_price_statistics,
     analyze_review_statistics,
     analyze_instant_booking_stats,
+    analyze_top_hosts,
 )
 
 
@@ -117,14 +119,22 @@ def get_analytics(
     review_stats = ReviewStatistics(**analyze_review_statistics(cleaned_df))
     instant_booking_stats = InstantBookingStats(**analyze_instant_booking_stats(cleaned_df))
     
+    top_hosts_data = analyze_top_hosts(cleaned_df, top_n=10)
+    top_hosts = [TopHost(**host_data) for host_data in top_hosts_data]
+    
+    # Calculate total listings count
+    total_listings = len(cleaned_df)
+    
     return AnalyticsResponse(
         country=country,
         province=province,
+        total_listings=total_listings,
         property_type_distribution=property_type_dist,
         room_type_distribution=room_type_dist,
         amenity_distribution=amenity_dist,
         price_statistics=price_stats,
         review_statistics=review_stats,
         instant_booking_stats=instant_booking_stats,
+        top_hosts=top_hosts,
     )
 
