@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { searchBarStyles } from "./SearchBar.styles";
 
 interface SearchBarProps {
-  onSearch?: (country: string, province: string) => void;
+  onSearch?: (country: string, province: string | null) => void;
 }
 
 const API_BASE_URL = "http://localhost:8000/api/v1";
@@ -71,7 +71,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
   const handleSearch = () => {
     if (selectedCountry && onSearch) {
-      onSearch(selectedCountry, selectedProvince || "");
+      onSearch(selectedCountry, selectedProvince || null);
     }
   };
 

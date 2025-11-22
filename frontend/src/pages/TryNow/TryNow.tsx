@@ -1,4 +1,4 @@
-import { Box, Typography, CircularProgress, Alert, Tabs, Tab } from "@mui/material";
+import { Box, Typography, CircularProgress, Alert, Tabs, Tab, Pagination } from "@mui/material";
 import { useRef, useEffect, useState } from "react";
 import Lenis from "lenis";
 import SearchBar from "../../components/Searchbar/SearchBar";
@@ -9,6 +9,7 @@ import PriceStatisticsCards from "../../components/AnalyticsCharts/PriceStatisti
 import ReviewStatisticsCards from "../../components/AnalyticsCharts/ReviewStatisticsCards";
 import InstantBookingChart from "../../components/AnalyticsCharts/InstantBookingChart";
 import TopHostsList from "../../components/AnalyticsCharts/TopHostsList";
+import ListingCard from "../../components/Listings/ListingCard";
 import { tryNowStyles } from "./TryNow.styles";
 
 type ChartType = "property" | "room" | "amenity" | "price" | "review" | "instant" | "hosts";
@@ -76,6 +77,33 @@ interface AnalyticsData {
   top_hosts: TopHost[];
 }
 
+interface Listing {
+  id: string | null;
+  listing_url: string | null;
+  name: string | null;
+  description: string | null;
+  neighborhood_overview: string | null;
+  picture_url: string | null;
+  host_name: string | null;
+  host_about: string | null;
+  property_types: string | null;
+  room_type: string | null;
+  accomodations: number | null; // Note: API uses "accomodations" (serialization alias)
+  price: number | null;
+}
+
+interface ListingsResponse {
+  total: number;
+  country: string;
+  province: string;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+  items: Listing[];
+}
+
 const TryNow = () => {
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const lenisInstanceRef = useRef<Lenis | null>(null);
@@ -83,6 +111,15 @@ const TryNow = () => {
   const [loadingAnalytics, setLoadingAnalytics] = useState<boolean>(false);
   const [errorAnalytics, setErrorAnalytics] = useState<string | null>(null);
   const [selectedChartType, setSelectedChartType] = useState<ChartType>("property");
+
+  // Listings state
+  const [listingsData, setListingsData] = useState<ListingsResponse | null>(null);
+  const [loadingListings, setLoadingListings] = useState<boolean>(false);
+  const [errorListings, setErrorListings] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const pageSize = 15;
 
   useEffect(() => {
     if (!scrollableContentRef.current) return;
@@ -130,34 +167,89 @@ const TryNow = () => {
     };
   }, []);
 
-  const handleSearch = async (country: string, province: string) => {
+  const handleSearch = async (country: string, province: string | null) => {
     setLoadingAnalytics(true);
+    setLoadingListings(true);
     setErrorAnalytics(null);
+    setErrorListings(null);
     setAnalyticsData(null);
+    setListingsData(null);
+    setCurrentPage(1);
+    setSelectedCountry(country);
+    setSelectedProvince(province);
 
+    // Fetch analytics
     try {
-      const params = new URLSearchParams({
+      const analyticsParams = new URLSearchParams({
         country: country,
       });
 
       // Only add province if it's provided
       if (province && province.trim() !== "") {
-        params.append("province", province);
+        analyticsParams.append("province", province);
       }
 
-      const response = await fetch(`${API_BASE_URL}/analytics/?${params.toString()}`);
+      const analyticsResponse = await fetch(`${API_BASE_URL}/analytics/?${analyticsParams.toString()}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch analytics: ${response.statusText}`);
+      if (!analyticsResponse.ok) {
+        throw new Error(`Failed to fetch analytics: ${analyticsResponse.statusText}`);
       }
 
-      const data: AnalyticsData = await response.json();
-      setAnalyticsData(data);
+      const analyticsData: AnalyticsData = await analyticsResponse.json();
+      setAnalyticsData(analyticsData);
     } catch (error) {
       console.error("Error fetching analytics:", error);
       setErrorAnalytics(error instanceof Error ? error.message : "Failed to fetch analytics data");
     } finally {
       setLoadingAnalytics(false);
+    }
+
+    // Fetch listings (only if province is provided, as listings API requires province)
+    if (province && province.trim() !== "") {
+      fetchListings(country, province, 1);
+    } else {
+      setLoadingListings(false);
+      setListingsData(null);
+      setErrorListings("Please select a province to view listings");
+    }
+  };
+
+  const fetchListings = async (country: string, province: string, page: number) => {
+    setLoadingListings(true);
+    setErrorListings(null);
+
+    try {
+      const listingsParams = new URLSearchParams({
+        country: country,
+        province: province,
+        page: page.toString(),
+        page_size: pageSize.toString(),
+      });
+
+      const listingsResponse = await fetch(`${API_BASE_URL}/listings/?${listingsParams.toString()}`);
+
+      if (!listingsResponse.ok) {
+        throw new Error(`Failed to fetch listings: ${listingsResponse.statusText}`);
+      }
+
+      const listingsData: ListingsResponse = await listingsResponse.json();
+      setListingsData(listingsData);
+      setCurrentPage(page);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+      setErrorListings(error instanceof Error ? error.message : "Failed to fetch listings data");
+    } finally {
+      setLoadingListings(false);
+    }
+  };
+
+  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
+    if (selectedCountry && selectedProvince) {
+      fetchListings(selectedCountry, selectedProvince, page);
+      // Scroll to top of listings section
+      if (scrollableContentRef.current) {
+        scrollableContentRef.current.scrollTop = 0;
+      }
     }
   };
 
@@ -269,26 +361,83 @@ const TryNow = () => {
 
           {/* Listings Section - Scrollable, takes less space */}
           <Box sx={tryNowStyles.listingsSection}>
-            <Typography sx={tryNowStyles.debugLabel} variant="h4" component="div">
-              LISTINGS DIV (Scrollable)
-            </Typography>
-            <Typography sx={tryNowStyles.debugText}>This section will contain paginated listings</Typography>
-            {/* Scrollable content area with Lenis smooth scroll */}
-            <Box
-              ref={scrollableContentRef}
-              sx={tryNowStyles.scrollableContent}
-              onWheel={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              <Box data-lenis-content sx={{ display: "flex", flexDirection: "column" }}>
-                {Array.from({ length: 20 }, (_, i) => (
-                  <Box key={i} sx={tryNowStyles.debugItem}>
-                    <Typography>Listing Item {i + 1}</Typography>
-                  </Box>
-                ))}
-              </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: "#222222", mb: 0.5 }}>
+                Listings
+              </Typography>
+              {listingsData && (
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  {listingsData.total.toLocaleString()} listings found
+                  {listingsData.province && ` in ${listingsData.province}`}
+                </Typography>
+              )}
             </Box>
+
+            {loadingListings && (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px", flex: 1 }}>
+                <CircularProgress />
+              </Box>
+            )}
+
+            {errorListings && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                {errorListings}
+              </Alert>
+            )}
+
+            {!loadingListings && !errorListings && !listingsData && (
+              <Box sx={{ textAlign: "center", pt: 4, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Typography variant="body2" color="text.secondary">
+                  Select a country and province, then click search to view listings
+                </Typography>
+              </Box>
+            )}
+
+            {!loadingListings && !errorListings && listingsData && (
+              <>
+                {/* Scrollable content area with Lenis smooth scroll */}
+                <Box
+                  ref={scrollableContentRef}
+                  sx={tryNowStyles.scrollableContent}
+                  onWheel={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <Box data-lenis-content sx={{ display: "flex", flexDirection: "column" }}>
+                    {listingsData.items.map((listing) => (
+                      <ListingCard key={listing.id || Math.random()} listing={listing} />
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* Pagination Controls */}
+                {listingsData.total_pages > 1 && (
+                  <Box sx={{ display: "flex", justifyContent: "center", mt: 2, pt: 2, borderTop: "1px solid #e8e8e8" }}>
+                    <Pagination
+                      count={listingsData.total_pages}
+                      page={currentPage}
+                      onChange={handlePageChange}
+                      color="primary"
+                      sx={{
+                        "& .MuiPaginationItem-root": {
+                          color: "#666",
+                          "&.Mui-selected": {
+                            backgroundColor: "#FF5A5F",
+                            color: "#ffffff",
+                            "&:hover": {
+                              backgroundColor: "#FF4A4F",
+                            },
+                          },
+                          "&:hover": {
+                            backgroundColor: "rgba(255, 90, 95, 0.1)",
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+                )}
+              </>
+            )}
           </Box>
         </Box>
       </Box>
