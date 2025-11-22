@@ -24,20 +24,32 @@ def get_listings(
     country: str,
     province: str,
     dataset: str = "listings",
+    page: int = 1,
+    page_size: int = 20,
     cleaning_rules: Optional[Dict[str, Any]] = None,
 ) -> ListingResponse:
     """
-    Load, clean, and serialise listing data for the given country/province.
+    Load, clean, and serialise listing data for the given country/province with pagination.
 
     Parameters:
         country: Country requested by the frontend (case-insensitive).
         province: Province/state requested by the frontend.
         dataset: Name of the CSV dataset (default: "listings").
+        page: Page number (1-indexed, default: 1).
+        page_size: Number of items per page (default: 20, max: 100).
         cleaning_rules: Optional overrides passed to the cleaning pipeline.
 
     Returns:
-        ListingResponse containing total count and cleaned Listing items.
+        ListingResponse containing paginated listings with metadata.
     """
+    # Validate pagination parameters
+    if page < 1:
+        page = 1
+    if page_size < 1:
+        page_size = 20
+    if page_size > 100:
+        page_size = 100  # Cap at 100 to prevent excessive data transfer
+
     try:
         raw_df = load_csv(country, province, dataset)
     except (RegistryError, LoaderError) as exc:
@@ -54,12 +66,35 @@ def get_listings(
     except ValueError as exc:
         raise ListingsControllerError(f"Cleaning failed: {exc}") from exc
 
-    items = _dataframe_to_listings(cleaned_df)
+    # Calculate pagination
+    total = len(cleaned_df)
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 1  # Ceiling division
+    
+    # Validate page number
+    if page > total_pages and total > 0:
+        page = total_pages
+    
+    # Calculate slice indices
+    start_idx = (page - 1) * page_size
+    end_idx = start_idx + page_size
+    
+    # Slice the dataframe for the requested page
+    paginated_df = cleaned_df.iloc[start_idx:end_idx]
+    items = _dataframe_to_listings(paginated_df)
+
+    # Calculate pagination flags
+    has_next = page < total_pages
+    has_previous = page > 1
 
     return ListingResponse(
-        total=len(items),
+        total=total,
         country=country,
         province=province,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+        has_next=has_next,
+        has_previous=has_previous,
         items=items,
     )
 

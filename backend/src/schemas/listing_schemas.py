@@ -46,12 +46,17 @@ class Listing(BaseModel):
 
 
 class ListingResponse(BaseModel):
-    """Envelope returned by list endpoints."""
+    """Envelope returned by list endpoints with pagination support."""
 
-    total: int
+    total: int = Field(description="Total number of listings available")
     country: str
     province: str
-    items: list[Listing]
+    page: int = Field(description="Current page number (1-indexed)")
+    page_size: int = Field(description="Number of items per page")
+    total_pages: int = Field(description="Total number of pages available")
+    has_next: bool = Field(description="Whether there is a next page")
+    has_previous: bool = Field(description="Whether there is a previous page")
+    items: list[Listing] = Field(description="Listings for the current page")
 
 
 class CountryListResponse(BaseModel):

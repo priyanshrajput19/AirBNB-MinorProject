@@ -25,12 +25,28 @@ def list_listings(
     country: str = Query(..., description="Country name, e.g. 'Canada'"),
     province: str = Query(..., description="Province or state name, e.g. 'Montreal'"),
     dataset: str = Query("listings", description="Dataset filename (without .csv)"),
+    page: int = Query(1, ge=1, description="Page number (1-indexed, default: 1)"),
+    page_size: int = Query(20, ge=1, le=100, description="Number of items per page (default: 20, max: 100)"),
 ):
     """
-    Return cleaned listing data for the requested country/province.
+    Return paginated listing data for the requested country/province.
+    
+    Each listing includes:
+    - Picture URL (picture_url)
+    - Name (name)
+    - Listing URL (listing_url) for booking redirect
+    - And other listing details
+    
+    Returns 10-20 listings per page by default, with pagination metadata.
     """
     try:
-        response = get_listings(country=country, province=province, dataset=dataset)
+        response = get_listings(
+            country=country,
+            province=province,
+            dataset=dataset,
+            page=page,
+            page_size=page_size,
+        )
     except ListingsControllerError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return response
