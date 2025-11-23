@@ -27,6 +27,9 @@ def get_listings(
     page: int = 1,
     page_size: int = 20,
     cleaning_rules: Optional[Dict[str, Any]] = None,
+    property_type: Optional[str] = None,
+    room_type: Optional[str] = None,
+    amenity: Optional[str] = None,
 ) -> ListingResponse:
     """
     Load, clean, and serialise listing data for the given country/province with pagination.
@@ -65,6 +68,48 @@ def get_listings(
         )
     except ValueError as exc:
         raise ListingsControllerError(f"Cleaning failed: {exc}") from exc
+
+    # Apply filters
+    if property_type:
+        # Remove "Property: " prefix if present
+        filter_value = property_type.replace("Property: ", "")
+        if "property_types" in cleaned_df.columns:
+            cleaned_df = cleaned_df[cleaned_df["property_types"].astype(str).str.contains(filter_value, case=False, na=False)]
+    
+    if room_type:
+        # Remove "Room: " prefix if present
+        filter_value = room_type.replace("Room: ", "")
+        if "room_type" in cleaned_df.columns:
+            cleaned_df = cleaned_df[cleaned_df["room_type"].astype(str).str.contains(filter_value, case=False, na=False)]
+    
+    if amenity:
+        # Filter by amenity - amenities column can be a list or string
+        import ast
+        if "amenities" in cleaned_df.columns:
+            def has_amenity(amenities_value, search_amenity):
+                if pd.isna(amenities_value):
+                    return False
+                
+                # Try to parse as list if it's a string representation
+                try:
+                    if isinstance(amenities_value, str):
+                        if amenities_value.strip().startswith("["):
+                            amenities_list = ast.literal_eval(amenities_value)
+                        else:
+                            amenities_list = [a.strip() for a in amenities_value.split(",") if a.strip()]
+                    elif isinstance(amenities_value, list):
+                        amenities_list = amenities_value
+                    else:
+                        amenities_list = [str(amenities_value)]
+                    
+                    # Check if search amenity is in the list (case-insensitive)
+                    search_lower = search_amenity.lower()
+                    return any(search_lower in str(a).lower() for a in amenities_list)
+                except (ValueError, SyntaxError):
+                    # If parsing fails, treat as single amenity string
+                    return search_amenity.lower() in str(amenities_value).lower()
+            
+            cleaned_df = cleaned_df[cleaned_df["amenities"].apply(lambda x: has_amenity(x, amenity))]
 
     # Calculate pagination
     total = len(cleaned_df)

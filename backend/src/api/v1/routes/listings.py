@@ -27,6 +27,9 @@ def list_listings(
     dataset: str = Query("listings", description="Dataset filename (without .csv)"),
     page: int = Query(1, ge=1, description="Page number (1-indexed, default: 1)"),
     page_size: int = Query(20, ge=1, le=100, description="Number of items per page (default: 20, max: 100)"),
+    property_type: str = Query(None, description="Filter by property type (optional)"),
+    room_type: str = Query(None, description="Filter by room type (optional)"),
+    amenity: str = Query(None, description="Filter by amenity (optional)"),
 ):
     """
     Return paginated listing data for the requested country/province.
@@ -46,6 +49,9 @@ def list_listings(
             dataset=dataset,
             page=page,
             page_size=page_size,
+            property_type=property_type,
+            room_type=room_type,
+            amenity=amenity,
         )
     except ListingsControllerError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

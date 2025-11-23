@@ -12,19 +12,38 @@ from pandas import DataFrame
 
 
 def analyze_property_type_distribution(df: DataFrame) -> List[Dict[str, Any]]:
-    """Count listings by property_type."""
-    if "property_types" not in df.columns:
-        return []
-    counts = df["property_types"].value_counts().to_dict()
-    return [{"property_type": str(k), "count": int(v)} for k, v in counts.items() if pd.notna(k)]
+    """
+    Count listings by property_type and room_type, combining them into one distribution.
+    Returns a combined distribution with both property types and room types.
+    """
+    combined_counts: Dict[str, int] = {}
+    
+    # Add property types
+    if "property_types" in df.columns:
+        prop_counts = df["property_types"].value_counts().to_dict()
+        for k, v in prop_counts.items():
+            if pd.notna(k):
+                key = f"Property: {str(k)}"
+                combined_counts[key] = combined_counts.get(key, 0) + int(v)
+    
+    # Add room types
+    if "room_type" in df.columns:
+        room_counts = df["room_type"].value_counts().to_dict()
+        for k, v in room_counts.items():
+            if pd.notna(k):
+                key = f"Room: {str(k)}"
+                combined_counts[key] = combined_counts.get(key, 0) + int(v)
+    
+    # Convert to list format
+    return [{"property_type": k, "count": v} for k, v in combined_counts.items()]
 
 
 def analyze_room_type_distribution(df: DataFrame) -> List[Dict[str, Any]]:
-    """Count listings by room_type."""
-    if "room_type" not in df.columns:
-        return []
-    counts = df["room_type"].value_counts().to_dict()
-    return [{"room_type": str(k), "count": int(v)} for k, v in counts.items() if pd.notna(k)]
+    """
+    Deprecated: Room type distribution is now combined with property type.
+    Returns empty list to maintain backward compatibility.
+    """
+    return []
 
 
 def analyze_amenity_distribution(df: DataFrame, top_n: int = 20) -> List[Dict[str, Any]]:
@@ -100,8 +119,13 @@ def analyze_review_statistics(df: DataFrame) -> Dict[str, float]:
     }
 
 
-def analyze_instant_booking_stats(df: DataFrame) -> Dict[str, int]:
-    """Count listings by instant booking status."""
+def analyze_instant_booking_stats(df: DataFrame) -> Dict[str, Any]:
+    """
+    Count listings by instant booking status and return list of enabled listings.
+    
+    Returns:
+        Dict with counts and list of listings with instant booking enabled (name and id).
+    """
     # Try common column name variations for instant booking
     instant_booking_col = None
     for col_name in ["instant_bookable", "has_availability", "instant_booking"]:
@@ -112,17 +136,52 @@ def analyze_instant_booking_stats(df: DataFrame) -> Dict[str, int]:
     if instant_booking_col is None:
         # Default to assuming all are disabled if column doesn't exist
         total = len(df)
-        return {"instant_booking_enabled": 0, "instant_booking_disabled": total, "total": total}
+        return {
+            "instant_booking_enabled": 0,
+            "instant_booking_disabled": total,
+            "total": total,
+            "enabled_listings": [],
+        }
     
-    # Count true/false values
-    enabled = int(df[instant_booking_col].fillna(False).astype(bool).sum())
+    # Filter listings with instant booking enabled
+    enabled_df = df[df[instant_booking_col].fillna(False).astype(bool)].copy()
+    
+    # Count enabled/disabled
+    enabled = int(len(enabled_df))
     total = len(df)
     disabled = total - enabled
+    
+    # Get enabled listings (name and id)
+    enabled_listings = []
+    if len(enabled_df) > 0:
+        # Check for name and id columns (try variations)
+        name_col = None
+        id_col = None
+        
+        for col in df.columns:
+            col_lower = col.lower()
+            if col_lower in ["name", "listing_name", "title"]:
+                name_col = col
+            elif col_lower in ["id", "listing_id"]:
+                id_col = col
+        
+        if name_col:
+            for _, row in enabled_df.iterrows():
+                listing_name = str(row[name_col]) if pd.notna(row[name_col]) else "Unnamed Listing"
+                listing_id = None
+                if id_col and id_col in row.index:
+                    listing_id = str(row[id_col]) if pd.notna(row[id_col]) else None
+                
+                enabled_listings.append({
+                    "name": listing_name,
+                    "id": listing_id,
+                })
     
     return {
         "instant_booking_enabled": enabled,
         "instant_booking_disabled": disabled,
         "total": total,
+        "enabled_listings": enabled_listings,
     }
 
 

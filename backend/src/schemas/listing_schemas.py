@@ -112,12 +112,22 @@ class ReviewStatistics(BaseModel):
     min: float
 
 
+class InstantBookingListing(BaseModel):
+    """Listing with instant booking enabled."""
+
+    name: str = Field(description="Name of the listing.")
+    id: Optional[str] = Field(default=None, description="ID of the listing.")
+
+
 class InstantBookingStats(BaseModel):
     """Instant booking statistics."""
 
     instant_booking_enabled: int
     instant_booking_disabled: int
     total: int
+    enabled_listings: list[InstantBookingListing] = Field(
+        default_factory=list, description="List of listings with instant booking enabled."
+    )
 
 
 class TopHost(BaseModel):

@@ -3,7 +3,6 @@ import { useRef, useEffect, useState } from "react";
 import Lenis from "lenis";
 import SearchBar from "../../components/Searchbar/SearchBar";
 import PropertyTypeChart from "../../components/AnalyticsCharts/PropertyTypeChart";
-import RoomTypeChart from "../../components/AnalyticsCharts/RoomTypeChart";
 import AmenityChart from "../../components/AnalyticsCharts/AmenityChart";
 import PriceStatisticsCards from "../../components/AnalyticsCharts/PriceStatisticsCards";
 import ReviewStatisticsCards from "../../components/AnalyticsCharts/ReviewStatisticsCards";
@@ -12,7 +11,7 @@ import TopHostsList from "../../components/AnalyticsCharts/TopHostsList";
 import ListingCard from "../../components/Listings/ListingCard";
 import { tryNowStyles } from "./TryNow.styles";
 
-type ChartType = "property" | "room" | "amenity" | "price" | "review" | "instant" | "hosts";
+type ChartType = "property" | "amenity" | "price" | "review" | "instant" | "hosts";
 
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
@@ -46,10 +45,16 @@ interface ReviewStatistics {
   min: number;
 }
 
+interface InstantBookingListing {
+  name: string;
+  id: string | null;
+}
+
 interface InstantBookingStats {
   instant_booking_enabled: number;
   instant_booking_disabled: number;
   total: number;
+  enabled_listings: InstantBookingListing[];
 }
 
 interface TopHost {
@@ -119,6 +124,9 @@ const TryNow = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [filterPropertyType, setFilterPropertyType] = useState<string | null>(null);
+  const [filterRoomType, setFilterRoomType] = useState<string | null>(null);
+  const [filterAmenity, setFilterAmenity] = useState<string | null>(null);
   const pageSize = 15;
 
   useEffect(() => {
@@ -204,6 +212,11 @@ const TryNow = () => {
       setLoadingAnalytics(false);
     }
 
+    // Reset filters when new search is performed
+    setFilterPropertyType(null);
+    setFilterRoomType(null);
+    setFilterAmenity(null);
+
     // Fetch listings (only if province is provided, as listings API requires province)
     if (province && province.trim() !== "") {
       fetchListings(country, province, 1);
@@ -214,7 +227,7 @@ const TryNow = () => {
     }
   };
 
-  const fetchListings = async (country: string, province: string, page: number) => {
+  const fetchListings = async (country: string, province: string, page: number, propertyType?: string | null, roomType?: string | null, amenity?: string | null) => {
     setLoadingListings(true);
     setErrorListings(null);
 
@@ -225,6 +238,17 @@ const TryNow = () => {
         page: page.toString(),
         page_size: pageSize.toString(),
       });
+
+      // Add filters if provided
+      if (propertyType) {
+        listingsParams.append("property_type", propertyType);
+      }
+      if (roomType) {
+        listingsParams.append("room_type", roomType);
+      }
+      if (amenity) {
+        listingsParams.append("amenity", amenity);
+      }
 
       const listingsResponse = await fetch(`${API_BASE_URL}/listings/?${listingsParams.toString()}`);
 
@@ -243,9 +267,66 @@ const TryNow = () => {
     }
   };
 
+  const handlePropertyTypeClick = (type: string, isProperty: boolean) => {
+    // Clean the type (remove prefix)
+    const cleanType = type.replace("Property: ", "").replace("Room: ", "");
+
+    if (isProperty) {
+      setFilterPropertyType(cleanType);
+      setFilterRoomType(null);
+    } else {
+      setFilterRoomType(cleanType);
+      setFilterPropertyType(null);
+    }
+
+    // Fetch filtered listings
+    if (selectedCountry && selectedProvince) {
+      setCurrentPage(1);
+      const filterProp = isProperty ? cleanType : null;
+      const filterRoom = !isProperty ? cleanType : null;
+      fetchListings(selectedCountry, selectedProvince, 1, filterProp, filterRoom, null);
+
+      // Scroll to listings section
+      setTimeout(() => {
+        if (scrollableContentRef.current) {
+          scrollableContentRef.current.scrollTop = 0;
+        }
+      }, 100);
+    }
+  };
+
+  const handleAmenityClick = (amenity: string) => {
+    setFilterAmenity(amenity);
+    setFilterPropertyType(null);
+    setFilterRoomType(null);
+
+    // Fetch filtered listings
+    if (selectedCountry && selectedProvince) {
+      setCurrentPage(1);
+      fetchListings(selectedCountry, selectedProvince, 1, null, null, amenity);
+
+      // Scroll to listings section
+      setTimeout(() => {
+        if (scrollableContentRef.current) {
+          scrollableContentRef.current.scrollTop = 0;
+        }
+      }, 100);
+    }
+  };
+
+  const clearFilters = () => {
+    setFilterPropertyType(null);
+    setFilterRoomType(null);
+    setFilterAmenity(null);
+    if (selectedCountry && selectedProvince) {
+      setCurrentPage(1);
+      fetchListings(selectedCountry, selectedProvince, 1);
+    }
+  };
+
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     if (selectedCountry && selectedProvince) {
-      fetchListings(selectedCountry, selectedProvince, page);
+      fetchListings(selectedCountry, selectedProvince, page, filterPropertyType, filterRoomType, filterAmenity);
       // Scroll to top of listings section
       if (scrollableContentRef.current) {
         scrollableContentRef.current.scrollTop = 0;
@@ -323,7 +404,6 @@ const TryNow = () => {
                     }}
                   >
                     <Tab label="Property Type" value="property" />
-                    <Tab label="Room Type" value="room" />
                     <Tab label="Top Amenities" value="amenity" />
                     <Tab label="Price Stats" value="price" />
                     <Tab label="Review Stats" value="review" />
@@ -347,9 +427,8 @@ const TryNow = () => {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  {selectedChartType === "property" && <PropertyTypeChart data={analyticsData.property_type_distribution} />}
-                  {selectedChartType === "room" && <RoomTypeChart data={analyticsData.room_type_distribution} />}
-                  {selectedChartType === "amenity" && <AmenityChart data={analyticsData.amenity_distribution} />}
+                  {selectedChartType === "property" && <PropertyTypeChart data={analyticsData.property_type_distribution} onTypeClick={handlePropertyTypeClick} />}
+                  {selectedChartType === "amenity" && <AmenityChart data={analyticsData.amenity_distribution} country={analyticsData.country} province={analyticsData.province} onAmenityClick={handleAmenityClick} />}
                   {selectedChartType === "price" && <PriceStatisticsCards data={analyticsData.price_statistics} />}
                   {selectedChartType === "review" && <ReviewStatisticsCards data={analyticsData.review_statistics} />}
                   {selectedChartType === "instant" && <InstantBookingChart data={analyticsData.instant_booking_stats} />}
@@ -362,15 +441,38 @@ const TryNow = () => {
           {/* Listings Section - Scrollable, takes less space */}
           <Box sx={tryNowStyles.listingsSection}>
             <Box sx={{ mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#222222", mb: 0.5 }}>
-                Listings
-              </Typography>
-              {listingsData && (
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  {listingsData.total.toLocaleString()} listings found
-                  {listingsData.province && ` in ${listingsData.province}`}
-                </Typography>
-              )}
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: "#222222", mb: 0.5 }}>
+                    Listings
+                  </Typography>
+                  {listingsData && (
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                      {listingsData.total.toLocaleString()} listings found
+                      {listingsData.province && ` in ${listingsData.province}`}
+                    </Typography>
+                  )}
+                </Box>
+                {(filterPropertyType || filterRoomType || filterAmenity) && (
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ color: "#FF5A5F", fontWeight: 600 }}>
+                      Filtered: {filterPropertyType || filterRoomType || filterAmenity}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#FF5A5F",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        "&:hover": { color: "#FF4A4F" },
+                      }}
+                      onClick={clearFilters}
+                    >
+                      Clear
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Box>
 
             {loadingListings && (

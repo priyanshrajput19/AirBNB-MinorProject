@@ -71,7 +71,9 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
   const handleSearch = () => {
     if (selectedCountry && onSearch) {
-      onSearch(selectedCountry, selectedProvince || null);
+      // If "__NONE__" is selected or empty, pass null
+      const province = selectedProvince === "__NONE__" || !selectedProvince ? null : selectedProvince;
+      onSearch(selectedCountry, province);
     }
   };
 
@@ -150,6 +152,9 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   if (!selected) {
                     return <Typography sx={searchBarStyles.placeholder}>{!selectedCountry ? "Select country first" : loadingProvinces ? "Loading..." : "Province (optional)"}</Typography>;
                   }
+                  if (selected === "__NONE__") {
+                    return <Typography sx={{ fontSize: "14px", color: "#222222" }}>None (Entire Country)</Typography>;
+                  }
                   return <Typography sx={{ fontSize: "14px", color: "#222222" }}>{selected}</Typography>;
                 }}
               >
@@ -159,6 +164,18 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   </MenuItem>
                 ) : provinces.length === 0 && selectedCountry ? (
                   <MenuItem disabled>No provinces available</MenuItem>
+                ) : // Use array instead of Fragment - spread the conditional None option and province list
+                selectedCountry ? (
+                  [
+                    <MenuItem value="__NONE__" key="__NONE__" sx={{ fontStyle: "italic", fontWeight: 500 }}>
+                      None (Entire Country)
+                    </MenuItem>,
+                    ...provinces.map((province) => (
+                      <MenuItem key={province} value={province}>
+                        {province}
+                      </MenuItem>
+                    )),
+                  ]
                 ) : (
                   provinces.map((province) => (
                     <MenuItem key={province} value={province}>
