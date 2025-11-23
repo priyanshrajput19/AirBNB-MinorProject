@@ -1,5 +1,8 @@
 import { Box, Typography, Card, CardContent } from "@mui/material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 interface PriceStatistics {
   average: number;
@@ -13,16 +16,16 @@ interface PriceStatisticsCardsProps {
 }
 
 const PriceStatisticsCards = ({ data }: PriceStatisticsCardsProps) => {
-  const formatPrice = (price: number | null) => {
-    if (price === null || isNaN(price)) return "N/A";
-    return `$${price.toFixed(2)}`;
+  const formatPrice = (value: number | null) => {
+    if (value === null || isNaN(value)) return "N/A";
+    return `$${value.toFixed(2)}`;
   };
 
   const stats = [
-    { label: "Average Price", value: formatPrice(data.average), icon: <AttachMoneyIcon /> },
-    { label: "Highest Price", value: formatPrice(data.highest), icon: <AttachMoneyIcon /> },
-    { label: "Lowest Price", value: formatPrice(data.lowest), icon: <AttachMoneyIcon /> },
+    { label: "Average Price", value: formatPrice(data.average), icon: <AssessmentIcon /> },
     { label: "Median Price", value: formatPrice(data.median), icon: <AttachMoneyIcon /> },
+    { label: "Highest Price", value: formatPrice(data.highest), icon: <TrendingUpIcon /> },
+    { label: "Lowest Price", value: formatPrice(data.lowest), icon: <TrendingDownIcon /> },
   ];
 
   return (
@@ -54,3 +57,4 @@ const PriceStatisticsCards = ({ data }: PriceStatisticsCardsProps) => {
 };
 
 export default PriceStatisticsCards;
+

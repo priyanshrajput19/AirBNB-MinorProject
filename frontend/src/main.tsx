@@ -6,7 +6,7 @@ import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ReactLenis root>
+    <ReactLenis root options={{ smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 2 }}>
       <App />
     </ReactLenis>
   </StrictMode>

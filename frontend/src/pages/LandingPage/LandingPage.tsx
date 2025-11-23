@@ -3,6 +3,7 @@ import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { landingPageStyles } from "./LandingPage.styles";
+import backgroundImage from "../../assets/images/pexels-frans-van-heerden-201846-1438832.jpg";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -22,7 +23,18 @@ const LandingPage = () => {
 
   return (
     <>
-      <Box component="main" id="home" sx={landingPageStyles.main}>
+      <Box
+        component="main"
+        id="home"
+        sx={{
+          ...landingPageStyles.main,
+          backgroundImage: `url(${backgroundImage})`,
+        }}
+      >
+        {/* Background Image Overlay */}
+        <Box sx={landingPageStyles.backgroundOverlay} />
+
+        {/* Content */}
         <Stack className="landing-page-content" direction="column" spacing={3} sx={landingPageStyles.content}>
           <Typography
             sx={{

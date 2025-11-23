@@ -10,6 +10,7 @@ import InstantBookingChart from "../../components/AnalyticsCharts/InstantBooking
 import TopHostsList from "../../components/AnalyticsCharts/TopHostsList";
 import ListingCard from "../../components/Listings/ListingCard";
 import { tryNowStyles } from "./TryNow.styles";
+import backgroundImage from "../../assets/images/pexels-pixabay-280222.jpg";
 
 type ChartType = "property" | "amenity" | "price" | "review" | "instant" | "hosts";
 
@@ -336,210 +337,221 @@ const TryNow = () => {
 
   return (
     <>
-      <Box sx={tryNowStyles.container}>
-        <SearchBar onSearch={handleSearch} />
+      <Box
+        sx={{
+          ...tryNowStyles.container,
+          backgroundImage: `url(${backgroundImage})`,
+        }}
+      >
+        {/* Background overlay for better content visibility */}
+        <Box sx={tryNowStyles.backgroundOverlay} />
 
-        {/* Main Content Box with Analytics and Listings */}
-        <Box sx={tryNowStyles.contentBox}>
-          {/* Analytics Section - Takes more space */}
-          <Box
-            sx={tryNowStyles.analyticsSection}
-            onWheel={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            {loadingAnalytics && (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px", flex: 1 }}>
-                <CircularProgress />
-              </Box>
-            )}
+        {/* Content wrapper */}
+        <Box sx={tryNowStyles.contentWrapper}>
+          <SearchBar onSearch={handleSearch} />
 
-            {errorAnalytics && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {errorAnalytics}
-              </Alert>
-            )}
+          {/* Main Content Box with Analytics and Listings */}
+          <Box sx={tryNowStyles.contentBox}>
+            {/* Analytics Section - Takes more space */}
+            <Box
+              sx={tryNowStyles.analyticsSection}
+              onWheel={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              {loadingAnalytics && (
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px", flex: 1 }}>
+                  <CircularProgress />
+                </Box>
+              )}
 
-            {!loadingAnalytics && !errorAnalytics && !analyticsData && (
-              <Box sx={{ textAlign: "center", pt: 4, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Typography variant="h6" color="text.secondary">
-                  Select a country and province, then click search to view analytics
-                </Typography>
-              </Box>
-            )}
+              {errorAnalytics && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {errorAnalytics}
+                </Alert>
+              )}
 
-            {!loadingAnalytics && !errorAnalytics && analyticsData && (
-              <Box sx={{ flex: 1, minHeight: 0 }}>
-                {/* Header with Title and Chart Type Selector */}
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: "#FF5A5F", mb: 0.5 }}>
-                      Analytics for {analyticsData.country}
-                      {analyticsData.province && ` - ${analyticsData.province}`}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
-                      Total Listings: <span style={{ color: "#FF5A5F", fontWeight: 600 }}>{analyticsData.total_listings.toLocaleString()}</span>
-                    </Typography>
+              {!loadingAnalytics && !errorAnalytics && !analyticsData && (
+                <Box sx={{ textAlign: "center", pt: 4, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Typography variant="h6" color="text.secondary">
+                    Select a country and province, then click search to view analytics
+                  </Typography>
+                </Box>
+              )}
+
+              {!loadingAnalytics && !errorAnalytics && analyticsData && (
+                <Box sx={{ flex: 1, minHeight: 0 }}>
+                  {/* Header with Title and Chart Type Selector */}
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 600, color: "#FF5A5F", mb: 0.5 }}>
+                        Analytics for {analyticsData.country}
+                        {analyticsData.province && ` - ${analyticsData.province}`}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
+                        Total Listings: <span style={{ color: "#FF5A5F", fontWeight: 600 }}>{analyticsData.total_listings.toLocaleString()}</span>
+                      </Typography>
+                    </Box>
+
+                    {/* Chart Type Selector - Tabs */}
+                    <Tabs
+                      value={selectedChartType}
+                      onChange={(_, newValue: ChartType) => setSelectedChartType(newValue)}
+                      variant="scrollable"
+                      scrollButtons="auto"
+                      sx={{
+                        "& .MuiTabs-indicator": {
+                          backgroundColor: "#FF5A5F",
+                        },
+                        "& .MuiTab-root": {
+                          textTransform: "none",
+                          fontWeight: 600,
+                          color: "#666",
+                          minWidth: "120px",
+                          "&.Mui-selected": {
+                            color: "#FF5A5F",
+                          },
+                        },
+                      }}
+                    >
+                      <Tab label="Property Type" value="property" />
+                      <Tab label="Top Amenities" value="amenity" />
+                      <Tab label="Price Stats" value="price" />
+                      <Tab label="Review Stats" value="review" />
+                      <Tab label="Instant Booking" value="instant" />
+                      <Tab label="Top Hosts" value="hosts" />
+                    </Tabs>
                   </Box>
 
-                  {/* Chart Type Selector - Tabs */}
-                  <Tabs
-                    value={selectedChartType}
-                    onChange={(_, newValue: ChartType) => setSelectedChartType(newValue)}
-                    variant="scrollable"
-                    scrollButtons="auto"
+                  {/* Chart Display Area */}
+                  <Box
                     sx={{
-                      "& .MuiTabs-indicator": {
-                        backgroundColor: "#FF5A5F",
-                      },
-                      "& .MuiTab-root": {
-                        textTransform: "none",
-                        fontWeight: 600,
-                        color: "#666",
-                        minWidth: "120px",
-                        "&.Mui-selected": {
-                          color: "#FF5A5F",
-                        },
-                      },
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "flex-start",
+                      minHeight: "500px",
+                      backgroundColor: "#fafafa",
+                      borderRadius: "16px",
+                      padding: 4,
+                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+                      border: "1px solid #e8e8e8",
+                      transition: "all 0.3s ease",
                     }}
                   >
-                    <Tab label="Property Type" value="property" />
-                    <Tab label="Top Amenities" value="amenity" />
-                    <Tab label="Price Stats" value="price" />
-                    <Tab label="Review Stats" value="review" />
-                    <Tab label="Instant Booking" value="instant" />
-                    <Tab label="Top Hosts" value="hosts" />
-                  </Tabs>
-                </Box>
-
-                {/* Chart Display Area */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "flex-start",
-                    minHeight: "500px",
-                    backgroundColor: "#fafafa",
-                    borderRadius: "16px",
-                    padding: 4,
-                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
-                    border: "1px solid #e8e8e8",
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  {selectedChartType === "property" && <PropertyTypeChart data={analyticsData.property_type_distribution} onTypeClick={handlePropertyTypeClick} />}
-                  {selectedChartType === "amenity" && <AmenityChart data={analyticsData.amenity_distribution} country={analyticsData.country} province={analyticsData.province} onAmenityClick={handleAmenityClick} />}
-                  {selectedChartType === "price" && <PriceStatisticsCards data={analyticsData.price_statistics} />}
-                  {selectedChartType === "review" && <ReviewStatisticsCards data={analyticsData.review_statistics} />}
-                  {selectedChartType === "instant" && <InstantBookingChart data={analyticsData.instant_booking_stats} />}
-                  {selectedChartType === "hosts" && <TopHostsList data={analyticsData.top_hosts} />}
-                </Box>
-              </Box>
-            )}
-          </Box>
-
-          {/* Listings Section - Scrollable, takes less space */}
-          <Box sx={tryNowStyles.listingsSection}>
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: "#222222", mb: 0.5 }}>
-                    Listings
-                  </Typography>
-                  {listingsData && (
-                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                      {listingsData.total.toLocaleString()} listings found
-                      {listingsData.province && ` in ${listingsData.province}`}
-                    </Typography>
-                  )}
-                </Box>
-                {(filterPropertyType || filterRoomType || filterAmenity) && (
-                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <Typography variant="body2" sx={{ color: "#FF5A5F", fontWeight: 600 }}>
-                      Filtered: {filterPropertyType || filterRoomType || filterAmenity}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#FF5A5F",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        "&:hover": { color: "#FF4A4F" },
-                      }}
-                      onClick={clearFilters}
-                    >
-                      Clear
-                    </Typography>
+                    {selectedChartType === "property" && <PropertyTypeChart data={analyticsData.property_type_distribution} onTypeClick={handlePropertyTypeClick} />}
+                    {selectedChartType === "amenity" && <AmenityChart data={analyticsData.amenity_distribution} country={analyticsData.country} province={analyticsData.province} onAmenityClick={handleAmenityClick} />}
+                    {selectedChartType === "price" && <PriceStatisticsCards data={analyticsData.price_statistics} />}
+                    {selectedChartType === "review" && <ReviewStatisticsCards data={analyticsData.review_statistics} />}
+                    {selectedChartType === "instant" && <InstantBookingChart data={analyticsData.instant_booking_stats} />}
+                    {selectedChartType === "hosts" && <TopHostsList data={analyticsData.top_hosts} />}
                   </Box>
-                )}
-              </Box>
+                </Box>
+              )}
             </Box>
 
-            {loadingListings && (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px", flex: 1 }}>
-                <CircularProgress />
-              </Box>
-            )}
-
-            {errorListings && (
-              <Alert severity="info" sx={{ mb: 2 }}>
-                {errorListings}
-              </Alert>
-            )}
-
-            {!loadingListings && !errorListings && !listingsData && (
-              <Box sx={{ textAlign: "center", pt: 4, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Typography variant="body2" color="text.secondary">
-                  Select a country and province, then click search to view listings
-                </Typography>
-              </Box>
-            )}
-
-            {!loadingListings && !errorListings && listingsData && (
-              <>
-                {/* Scrollable content area with Lenis smooth scroll */}
-                <Box
-                  ref={scrollableContentRef}
-                  sx={tryNowStyles.scrollableContent}
-                  onWheel={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Box data-lenis-content sx={{ display: "flex", flexDirection: "column" }}>
-                    {listingsData.items.map((listing) => (
-                      <ListingCard key={listing.id || Math.random()} listing={listing} />
-                    ))}
+            {/* Listings Section - Scrollable, takes less space */}
+            <Box sx={tryNowStyles.listingsSection}>
+              <Box sx={{ mb: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: "#222222", mb: 0.5 }}>
+                      Listings
+                    </Typography>
+                    {listingsData && (
+                      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                        {listingsData.total.toLocaleString()} listings found
+                        {listingsData.province && ` in ${listingsData.province}`}
+                      </Typography>
+                    )}
                   </Box>
+                  {(filterPropertyType || filterRoomType || filterAmenity) && (
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                      <Typography variant="body2" sx={{ color: "#FF5A5F", fontWeight: 600 }}>
+                        Filtered: {filterPropertyType || filterRoomType || filterAmenity}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#FF5A5F",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                          "&:hover": { color: "#FF4A4F" },
+                        }}
+                        onClick={clearFilters}
+                      >
+                        Clear
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
+              </Box>
 
-                {/* Pagination Controls */}
-                {listingsData.total_pages > 1 && (
-                  <Box sx={{ display: "flex", justifyContent: "center", mt: 2, pt: 2, borderTop: "1px solid #e8e8e8" }}>
-                    <Pagination
-                      count={listingsData.total_pages}
-                      page={currentPage}
-                      onChange={handlePageChange}
-                      color="primary"
-                      sx={{
-                        "& .MuiPaginationItem-root": {
-                          color: "#666",
-                          "&.Mui-selected": {
-                            backgroundColor: "#FF5A5F",
-                            color: "#ffffff",
+              {loadingListings && (
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px", flex: 1 }}>
+                  <CircularProgress />
+                </Box>
+              )}
+
+              {errorListings && (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  {errorListings}
+                </Alert>
+              )}
+
+              {!loadingListings && !errorListings && !listingsData && (
+                <Box sx={{ textAlign: "center", pt: 4, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Select a country and province, then click search to view listings
+                  </Typography>
+                </Box>
+              )}
+
+              {!loadingListings && !errorListings && listingsData && (
+                <>
+                  {/* Scrollable content area with Lenis smooth scroll */}
+                  <Box
+                    ref={scrollableContentRef}
+                    sx={tryNowStyles.scrollableContent}
+                    onWheel={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Box data-lenis-content sx={{ display: "flex", flexDirection: "column" }}>
+                      {listingsData.items.map((listing) => (
+                        <ListingCard key={listing.id || Math.random()} listing={listing} />
+                      ))}
+                    </Box>
+                  </Box>
+
+                  {/* Pagination Controls */}
+                  {listingsData.total_pages > 1 && (
+                    <Box sx={{ display: "flex", justifyContent: "center", mt: 2, pt: 2, borderTop: "1px solid #e8e8e8" }}>
+                      <Pagination
+                        count={listingsData.total_pages}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                        sx={{
+                          "& .MuiPaginationItem-root": {
+                            color: "#666",
+                            "&.Mui-selected": {
+                              backgroundColor: "#FF5A5F",
+                              color: "#ffffff",
+                              "&:hover": {
+                                backgroundColor: "#FF4A4F",
+                              },
+                            },
                             "&:hover": {
-                              backgroundColor: "#FF4A4F",
+                              backgroundColor: "rgba(255, 90, 95, 0.1)",
                             },
                           },
-                          "&:hover": {
-                            backgroundColor: "rgba(255, 90, 95, 0.1)",
-                          },
-                        },
-                      }}
-                    />
-                  </Box>
-                )}
-              </>
-            )}
+                        }}
+                      />
+                    </Box>
+                  )}
+                </>
+              )}
+            </Box>
           </Box>
         </Box>
       </Box>

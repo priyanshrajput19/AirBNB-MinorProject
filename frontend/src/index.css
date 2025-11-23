@@ -19,8 +19,9 @@
 
 html {
   background-color: var(--primary-bg);
-  height: 100%;
   font-family: "Montserrat", sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: auto; /* Let Lenis handle smooth scrolling */
 }
 
 body {
@@ -33,6 +34,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto; /* Enable scrolling - Lenis will enhance it */
 }
 
 /* Ensure all text elements use Montserrat */

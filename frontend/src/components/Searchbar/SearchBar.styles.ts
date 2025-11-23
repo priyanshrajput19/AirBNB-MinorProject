@@ -8,13 +8,16 @@ export const searchBarStyles = {
   searchBar: {
     display: "flex",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    backdropFilter: "blur(15px)",
+    WebkitBackdropFilter: "blur(15px)",
     borderRadius: "50px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
     padding: "8px",
     maxWidth: "800px",
     height: "70px",
     overflow: "hidden",
+    border: "1px solid rgba(255, 255, 255, 0.4)",
   },
   whereSection: {
     padding: "16px 24px",
@@ -27,12 +30,8 @@ export const searchBarStyles = {
     flexDirection: "column",
     justifyContent: "center",
     borderRadius: "10px",
-    transition: "background-color 0.3s ease",
     overflow: "hidden",
     boxSizing: "border-box",
-    "&:hover": {
-      backgroundColor: "#f2f2f2",
-    },
   },
   inputSection: {
     padding: "16px 20px",
@@ -45,12 +44,8 @@ export const searchBarStyles = {
     flexDirection: "column",
     justifyContent: "center",
     borderRadius: "10px",
-    transition: "background-color 0.3s ease",
     overflow: "hidden",
     boxSizing: "border-box",
-    "&:hover": {
-      backgroundColor: "#f2f2f2",
-    },
   },
   divider: {
     width: "1px",

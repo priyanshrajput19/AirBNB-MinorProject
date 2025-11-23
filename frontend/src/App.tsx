@@ -42,6 +42,7 @@ const AppContent = () => {
           pointerEvents: showSplash ? "none" : "auto",
           position: "relative",
           zIndex: 1,
+          width: "100%",
         }}
       >
         <Header />
@@ -53,6 +54,7 @@ const AppContent = () => {
             animation: showSplash ? "none" : "fadeInUp 0.8s ease-out",
             position: "relative",
             zIndex: 1,
+            width: "100%",
           }}
         >
           <Routes key={location.pathname}>
